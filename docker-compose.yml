@@ -1,0 +1,74 @@
+services:
+    # --- DATABASE ---
+    db:
+        image: postgres:15-alpine
+        container_name: chat-db
+        environment:
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: supersecretpassword
+            POSTGRES_DB: chatdb
+        ports:
+            - "5432:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+
+    # --- BACKEND (.NET) ---
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        environment:
+            ConnectionStrings__DefaultConnection: "Host=db;Database=chatdb;Username=admin;Password=supersecretpassword"
+            ASPNETCORE_ENVIRONMENT: Development
+            ASPNETCORE_URLS: http://+:8080
+        ports:
+            - "5000:8080"
+        depends_on:
+            - db
+        command:
+            [
+                "dotnet",
+                "watch",
+                "run",
+                "--non-interactive",
+                "--urls",
+                "http://0.0.0.0:8080",
+            ]
+
+        develop:
+            watch:
+                - action: sync
+                  path: ./backend
+                  target: /src
+                  ignore:
+                      - bin/
+                      - obj/
+                - action: rebuild
+                  path: ./backend/backend.csproj
+
+    # --- FRONTEND (Vue + Vite) ---
+    frontend:
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        ports:
+            - "5173:5173"
+        environment:
+            - VITE_API_URL=http://localhost:5000/chatHub
+        depends_on:
+            - backend
+        command: npm run dev -- --host
+
+        develop:
+            watch:
+                - action: sync
+                  path: ./frontend
+                  target: /app
+                  ignore:
+                      - node_modules/
+                      - dist/
+                - action: rebuild
+                  path: ./frontend/package.json
+
+volumes:
+    pgdata:
