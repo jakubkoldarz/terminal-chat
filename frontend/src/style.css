@@ -3,11 +3,8 @@
 @theme {
   --color-terminal-green: #0ec50e;
   --color-terminal-dark: #080808;
-  --font-terminal: 'Jersey 10', monospace;
-}
-
-.blinking-cursor {
-  animation: blink 1s step-end infinite;
+  --font-terminal: 'VT323', monospace;
+  --animate-cursor: blink 1s step-end infinite;
 }
 
 @keyframes blink {

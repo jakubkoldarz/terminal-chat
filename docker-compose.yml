@@ -14,6 +14,7 @@ services:
 
     # --- BACKEND (.NET) ---
     backend:
+        container_name: backend-chat
         build:
             context: ./backend
             dockerfile: Dockerfile
@@ -48,6 +49,7 @@ services:
 
     # --- FRONTEND (Vue + Vite) ---
     frontend:
+        container_name: frontend-chat
         build:
             context: ./frontend
             dockerfile: Dockerfile
