@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  import { nextTick, ref } from 'vue';
+  import { nextTick, onMounted, ref } from 'vue';
   import TerminalInput from './TerminalInput.vue';
   import Typewriter from './Typewriter.vue';
   import type { TerminalField } from '../types/TerminalField';
@@ -17,6 +17,7 @@
   const formData = ref<Record<string, string>>({});
   const errorMessage = ref('');
   const currentKey = ref(0);
+  const isSubmitting = ref(false);
 
   async function nextStep() {
     if (errorMessage.value.length > 0) {
@@ -37,6 +38,7 @@
     if (currentStepIndex.value < fields.length - 1) {
       await progressForm();
     } else {
+      isSubmitting.value = true;
       submit();
     }
   }
@@ -65,18 +67,23 @@
     await nextTick();
     inputRefs.value[0]?.focus();
   }
+
+  onMounted(async () => {
+    await nextTick();
+    inputRefs.value[0]?.focus();
+  });
 </script>
 
 <template>
   <div :key="currentKey">
     <div v-for="(field, index) in fields" :key="field.name">
       <div class="flex gap-2" v-if="index <= currentStepIndex">
-        <Typewriter :text="`${field.name}:`"></Typewriter>
+        <Typewriter :text="`${field.label ?? field.name}:`"></Typewriter>
         <TerminalInput
           :is-password="field.isPassword"
           ref="inputRefs"
           v-model="formData[field.name]"
-          :disabled="index < currentStepIndex"
+          :disabled="index < currentStepIndex || isSubmitting"
           :readonly="index === currentStepIndex && errorMessage.length > 0"
           @submit="nextStep"
         ></TerminalInput>

@@ -9,7 +9,7 @@
     }>(),
     {
       showTyping: false,
-      typingSpeed: 20,
+      typingSpeed: 10,
     }
   );
 
@@ -38,7 +38,7 @@
 </script>
 
 <template>
-  <span class="whitespace-pre-wrap">
+  <span class="whitespace-nowrap">
     {{ displayedText }}
   </span>
 </template>

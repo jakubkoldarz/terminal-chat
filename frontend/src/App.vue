@@ -5,11 +5,12 @@
   import type { TerminalField } from './types/TerminalField';
 
   const isLoading = ref(false);
-  const hasChosenOption = ref(false);
+  const chosenOption = ref<'login' | 'register' | null>(null);
 
   const choiceFields: TerminalField[] = [
     {
       name: 'choice',
+      label: 'Do you want to login or register?',
       validationPattern: /^(login|register)$/,
       errorMessage: 'Please enter a valid option (login, register).',
     },
@@ -30,10 +31,25 @@
     },
   ];
 
-  function handleFormSubmit(data: Record<string, string>) {
+  function handleLogin(data: Record<string, string>) {
     // const password = data.password;
     // const login = data.login;
     isLoading.value = true;
+  }
+
+  function handleRegister(data: Record<string, string>) {
+    // const password = data.password;
+    // const login = data.login;
+    isLoading.value = true;
+  }
+
+  function handleChoiceSubmit(data: Record<string, string>) {
+    const choice = data.choice;
+    if (!choice) return;
+
+    if (choice == 'login' || choice == 'register') {
+      chosenOption.value = choice;
+    }
   }
 </script>
 
@@ -41,19 +57,20 @@
   <div
     class="bg-terminal-dark min-h-screen w-full p-12 text-terminal-green font-terminal text-2xl"
   >
-    <Typewriter
-      text="Initial version of the terminal chat application. Backend is running on ASP.NET Core, while frontend is built with Vue.js."
-    >
-    </Typewriter>
-    <hr class="mb-8" />
     <TerminalForm
+      v-if="!chosenOption"
       :fields="choiceFields"
-      @submit="handleFormSubmit"
+      @submit="handleChoiceSubmit"
     ></TerminalForm>
     <TerminalForm
-      v-if="hasChosenOption"
+      v-if="chosenOption == 'login'"
       :fields="authFields"
-      @submit="handleFormSubmit"
+      @submit="handleLogin"
+    ></TerminalForm>
+    <TerminalForm
+      v-if="chosenOption == 'register'"
+      :fields="authFields"
+      @submit="handleRegister"
     ></TerminalForm>
     <Typewriter v-if="isLoading" text="Loading..."> </Typewriter>
   </div>
